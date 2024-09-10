@@ -9,18 +9,20 @@
   </head>
   <body>
     <main>
-      <!-- solution start -->
-      <h1 id="h" class="flex">I'm not a robot</h1>
-      <h3 id="instruction" class="flex">Please click on the identical tiles to verify that you are not a robot.</h3>
-      <div class="flex" id="image-container">
-        <!-- Images will be dynamically inserted here -->
+      <!-- Prompt to click identical images -->
+      <h3 id="h">Please click on the identical tiles to verify that you are not a robot.</h3>
+      
+      <!-- Container for the images -->
+      <div id="image-container" class="flex">
+        <!-- Images will be rendered dynamically via script.js -->
       </div>
-      <div class="flex">
-        <button id="reset" style="display: none;">Reset</button>
-        <button id="verify" style="display: none;">Verify</button>
-      </div>
-      <p id="para" class="flex"></p>
-      <!-- solution end -->
+
+      <!-- Reset and Verify buttons (initially hidden) -->
+      <button id="reset" style="display: none;" onclick="resetGame()">Reset</button>
+      <button id="verify" style="display: none;" onclick="verify()">Verify</button>
+
+      <!-- Message that will be shown after verification -->
+      <p id="para"></p>
     </main>
     <script src="./script.js"></script>
   </body>

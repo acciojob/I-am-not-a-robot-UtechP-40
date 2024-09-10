@@ -1,77 +1,88 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const images = [
-    { class: "img1", url: "https://picsum.photos/id/237/200/300" },
-    { class: "img2", url: "https://picsum.photos/seed/picsum/200/300" },
-    { class: "img3", url: "https://picsum.photos/200/300?grayscale" },
-    { class: "img4", url: "https://picsum.photos/200/300/" },
-    { class: "img5", url: "https://picsum.photos/200/300.jpg" },
-  ];
+const imgContainer = document.getElementById('image-container');
+const para = document.getElementById('para');
+const resetButton = document.getElementById('reset');
+const verifyButton = document.getElementById('verify');
 
-  const imageContainer = document.getElementById("image-container");
-  const resetButton = document.getElementById("reset");
-  const verifyButton = document.getElementById("verify");
-  const para = document.getElementById("para");
+let selectedImages = [];
+let imageElements = [];
 
-  let selectedImages = [];
-  let repeatedImageClass = "";
+// Array of image class names (images are set via CSS)
+const images = [
+  { class: 'img1' },
+  { class: 'img2' },
+  { class: 'img3' },
+  { class: 'img4' },
+  { class: 'img5' }
+];
 
-  function shuffleImages() {
-    const shuffledImages = [...images];
-    const randomIndex = Math.floor(Math.random() * images.length);
-    repeatedImageClass = images[randomIndex].class;
-    shuffledImages.push(images[randomIndex]);
-    shuffledImages.sort(() => Math.random() - 0.5);
-    return shuffledImages;
+// Shuffle function
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+function renderImages() {
+  imgContainer.innerHTML = ''; // Clear container for rerender
+  selectedImages = [];
+  para.innerHTML = '';
+
+  // Select a random image to repeat
+  const randomImage = images[Math.floor(Math.random() * images.length)];
+
+  // Create a copy of the images array and add the repeated image
+  let allImages = [...images, randomImage];
+
+  // Shuffle the images
+  allImages = shuffle(allImages);
+
+  // Create img elements dynamically
+  allImages.forEach((imgObj, index) => {
+    const imgElement = document.createElement('img');
+    imgElement.className = imgObj.class; // Set class based on the image object
+    imgElement.onclick = () => selectImage(imgObj, imgElement); // Attach click handler
+    imgContainer.appendChild(imgElement);
+    imageElements.push(imgElement);
+  });
+}
+
+function selectImage(img, imgElement) {
+  // If already selected two images or if the same image is clicked, return
+  if (selectedImages.length >= 2 || selectedImages.includes(img)) return;
+
+  selectedImages.push(img);
+  imgElement.classList.add('selected'); // Mark image as selected
+
+  // Show reset button when any image is clicked
+  resetButton.style.display = 'inline';
+
+  // Show verify button if exactly two images are selected
+  if (selectedImages.length === 2) {
+    verifyButton.style.display = 'inline';
+  }
+}
+
+function verify() {
+  if (selectedImages.length !== 2) return;
+
+  const [firstImage, secondImage] = selectedImages;
+
+  // Check if the two selected images are the same
+  if (firstImage.class === secondImage.class) {
+    para.innerHTML = 'You are a human. Congratulations!';
+  } else {
+    para.innerHTML = "We can't verify you as a human. You selected the non-identical tiles.";
   }
 
-  function renderImages() {
-    const shuffledImages = shuffleImages();
-    imageContainer.innerHTML = "";
-    shuffledImages.forEach((img) => {
-      const imgElement = document.createElement("img");
-      imgElement.src = img.url;
-      imgElement.className = img.class;
-      imgElement.addEventListener("click", handleImageClick);
-      imageContainer.appendChild(imgElement);
-    });
-  }
+  // Hide the verify button after verification
+  verifyButton.style.display = 'none';
+}
 
-  function handleImageClick(event) {
-    const imgClass = event.target.className;
-    if (selectedImages.includes(event.target)) return;
+function resetGame() {
+  renderImages(); // Re-render the images
+  resetButton.style.display = 'none'; // Hide reset button
+  verifyButton.style.display = 'none'; // Hide verify button
+  selectedImages = [];
+  imageElements.forEach(img => img.classList.remove('selected')); // Remove selection highlight
+}
 
-    selectedImages.push(event.target);
-    event.target.classList.add("selected");
-
-    if (selectedImages.length === 1) {
-      resetButton.style.display = "block";
-    } else if (selectedImages.length === 2) {
-      verifyButton.style.display = "block";
-    }
-  }
-
-  function resetState() {
-    selectedImages.forEach((img) => img.classList.remove("selected"));
-    selectedImages = [];
-    resetButton.style.display = "none";
-    verifyButton.style.display = "none";
-    para.textContent = "";
-  }
-
-  function verifySelection() {
-    if (selectedImages.length === 2) {
-      const [first, second] = selectedImages;
-      if (first.className === second.className) {
-        para.textContent = "You are a human. Congratulations!";
-      } else {
-        para.textContent = "We can't verify you as a human. You selected the non-identical tiles.";
-      }
-      verifyButton.style.display = "none";
-    }
-  }
-
-  resetButton.addEventListener("click", resetState);
-  verifyButton.addEventListener("click", verifySelection);
-
-  renderImages();
-});
+// Initialize the game on page load
+renderImages();
